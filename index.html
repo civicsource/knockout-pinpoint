@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Pinpoint</title>
+
+	<script src="bower_components/jquery/dist/jquery.js" type="text/javascript"></script>
+	<script src="bower_components/knockout/dist/knockout.js" type="text/javascript"></script>
+	<script src="./knockout-pinpoint.js" type="text/javascript"></script>
+
+	<script src="http://mbest.github.io/knockout.punches/knockout.punches.min.js" type="text/javascript"></script>
+	<script src="http://maps.googleapis.com/maps/api/js?v=3.16&client=gme-archoninformation&sensor=false&nothing=" type="text/javascript"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+	<script type="text/javascript">
+		ko.punches.enableAll();
+		ko.punches.interpolationMarkup.enable();
+		ko.punches.attributeInterpolationMarkup.enable();
+
+	</script>
+</head>
+<body>
+
+	<style type="text/css">
+		.container {
+		}
+	</style>
+
+	<div class="row">
+		<div class="container col-md-offset-3 col-md-6 col-sm-offset-2 col-md-8 col-xs-offset-2 col-xs-8" style="border: 1px solid black; height: 600px;" data-bind="pinpoint: address, coordinates: coordinates">
+		</div>
+	</div>
+	<br />
+	address: {{address}}
+	<br />
+	coordinates: {{coordinates}}
+	<script type="text/javascript">
+
+		function Model() {
+			return {
+				address: ko.observable("935 Gravier Street, New Orleans, LA, 70123"),
+				coordinates: ko.observable()
+			}
+		}
+
+		ko.applyBindings(Model);
+
+	</script>
+</body>
+</html>
