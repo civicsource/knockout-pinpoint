@@ -71,12 +71,55 @@
 		}, function (results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
 				if (results[0]) {
-					el.newAddress(results[0].formatted_address);
+					el.newAddress({ formatted: results[0].formatted_address, object: addressFromComponents(results[0].address_components), components: results[0].address_components });
 				} else {
 					el.newAddress(null);
 				}
 			}
 		});
+	}
+
+	function addressFromComponents(components) {
+		var address = {
+			address1: "",
+			address2: "",
+			city: "",
+			stateCode: "",
+			postalCode: "",
+			county: "",
+			countryCode: "",
+		}
+		components.forEach(function (component) {
+			var val = getComponentValue(component);
+
+			if (~$.inArray("street_number", component.types)) {
+				address.address1 = val;
+			}
+			if (~$.inArray("route", component.types)) {
+				if (address.address1) address.address1 += " ";
+				address.address1 += val;
+			}
+			if (~$.inArray("locality", component.types)) {
+				address.city = val;
+			}
+			if (~$.inArray("administrative_area_level_1", component.types)) {
+				address.stateCode = component.short_name;
+			}
+			if (~$.inArray("country", component.types)) {
+				address.countryCode = component.short_name;
+			}
+			if (~$.inArray("postal_code", component.types)) {
+				address.postalCode = val;
+			}
+			if (~$.inArray("administrative_area_level_2", component.types)) {
+				address.county = val;
+			}
+		});
+
+		return address;
+	}
+	function getComponentValue(component) {
+		return component.long_name || component.short_name;
 	}
 
 	function configureOptions(el) {
