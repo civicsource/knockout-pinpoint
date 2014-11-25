@@ -10,7 +10,6 @@
 
 	ko.bindingHandlers.pinpoint = {
 		init: function (el, valueAccessor, allBindings) {
-			$(el).attr('id', 'knockout-pinpoint__container')
 			el.coordinates = getObservable(allBindings.get('coordinates')).extend({ throttle: 500 });
 			el.newAddress = getObservable(allBindings.get('newAddress'));
 			el.map = getObservable(allBindings.get('map'));
@@ -47,7 +46,7 @@
 		if (!coordinates) return;
 		var mapOptions = $.extend({}, el.mapOptions, { center: coordinates });
 		if (!el.map()) {
-			el.map(new google.maps.Map(document.getElementById($(el).attr('id')), mapOptions));
+			el.map(new google.maps.Map(el, mapOptions));
 		}
 		var markerOptions = $.extend({}, el.markerOptions, { map: el.map(), position: coordinates, draggable: true });
 		if (!el.marker()) {
