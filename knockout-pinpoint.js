@@ -8,21 +8,25 @@
 	}
 }(this, function ($, ko) {
 
-	var defaults = {
-		zoom: 17
-	};
-
 	ko.bindingHandlers.pinpoint = {
 		init: function (el, valueAccessor, allBindings) {
 			$(el).attr('id', 'knockout-pinpoint__container')
-			el.coordinates = (ko.isObservable(allBindings.get('coordinates')) ? allBindings.get('coordinates') : ko.observable());
+			el.coordinates = getObservable(allBindings.get('coordinates')).extend({ throttle: 500 });
+			el.newAddress = getObservable(allBindings.get('newAddress'));
+			el.map = getObservable(allBindings.get('map'));
+			el.marker = getObservable(allBindings.get('marker'));
+			el.mapOptions = ko.utils.unwrapObservable(allBindings.get('mapOptions'));
+			el.markerOptions = ko.utils.unwrapObservable(allBindings.get('markerOptions'));
+			configureOptions(el);
+
 			el.coordinates.subscribe(function (newVal) {
-				render(el, el.coordinates())
+				render(el, newVal);
+				reverseCodeAddress(el, newVal);
 			}, this);
-			el.map = new google.maps.Map(document.getElementById($(el).attr('id')), { zoom: defaults.zoom, center: new google.maps.LatLng(-25.363882, 131.044922) });
+
 			return { controlsDescendantBindings: true };
 		},
-		update: function (el, valueAccessor, allBindingsAccessor) {
+		update: function (el, valueAccessor, allBindings) {
 			var address = valueAccessor();
 			codeAddress(el, address());
 		}
@@ -41,16 +45,63 @@
 	}
 	function render(el, coordinates) {
 		if (!coordinates) return;
-		var myOptions = {
-			zoom: defaults.zoom,
-			center: coordinates
+		var mapOptions = $.extend({}, el.mapOptions, { center: coordinates });
+		if (!el.map()) {
+			el.map(new google.maps.Map(document.getElementById($(el).attr('id')), mapOptions));
 		}
-		el.map = new google.maps.Map(document.getElementById($(el).attr('id')), myOptions);
-		var marker = new google.maps.Marker({
-			map: el.map,
-			draggable: true,
-			title: "Drag me!",
-			position: coordinates
+		var markerOptions = $.extend({}, el.markerOptions, { map: el.map(), position: coordinates, draggable: true });
+		if (!el.marker()) {
+			el.marker(new google.maps.Marker(markerOptions));
+		}
+		google.maps.event.addListener(el.marker(), 'dragend', function (ev) {
+			window.setTimeout(function () {
+				el.coordinates(el.marker().getPosition())
+				el.map().panTo(el.marker().getPosition());
+			}, 500);
 		});
 	}
+
+	function reverseCodeAddress(el, coordinates) {
+		if (!coordinates) {
+			el.newAddress(null);
+			return;
+		}
+		geocoder = new google.maps.Geocoder();
+		geocoder.geocode({
+			'latLng': coordinates
+		}, function (results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				if (results[0]) {
+					el.newAddress(results[0].formatted_address);
+				} else {
+					el.newAddress(null);
+				}
+			}
+		});
+	}
+
+	function configureOptions(el) {
+		if (!el.mapOptions) {
+			el.mapOptions = {};
+		}
+		el.mapOptions.zoom = (el.mapOptions.zoom || 17);
+		if (!el.markerOptions) {
+			el.markerOptions = {};
+		}
+		el.markerOptions.title = el.markerOptions.title || "Drag me to select the proper location";
+		el.markerOptions.animation = el.markerOptions.animation || google.maps.Animation.DROP;
+	}
+
+	function getObservable(obj) {
+		if (ko.isObservable(obj)) {
+			return obj;
+		} else {
+			if (obj) {
+				return ko.observable(obj);
+			} else {
+				return ko.observable("");
+			}
+		}
+	}
+
 }));
