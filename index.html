@@ -32,8 +32,10 @@
 	</div>
 	<br />
 	address: {{address}}
+	{{#if newAddress}}
 	<br />
-	new address: {{newAddress}}
+	new address: {{newAddress().formatted}}
+	{{/if}}
 	<br />
 	coordinates: {{coordinates}}
 	<script type="text/javascript">
