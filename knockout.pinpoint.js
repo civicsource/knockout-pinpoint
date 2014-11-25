@@ -84,10 +84,10 @@
 			address1: "",
 			address2: "",
 			city: "",
-			stateCode: "",
+			state: "",
 			postalCode: "",
 			county: "",
-			countryCode: "",
+			country: "",
 		}
 		components.forEach(function (component) {
 			var val = getComponentValue(component);
@@ -103,10 +103,10 @@
 				address.city = val;
 			}
 			if (~$.inArray("administrative_area_level_1", component.types)) {
-				address.stateCode = component.short_name;
+				address.state = component.short_name;
 			}
 			if (~$.inArray("country", component.types)) {
-				address.countryCode = component.short_name;
+				address.country = component.short_name;
 			}
 			if (~$.inArray("postal_code", component.types)) {
 				address.postalCode = val;
