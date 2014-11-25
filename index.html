@@ -27,11 +27,13 @@
 	</style>
 
 	<div class="row">
-		<div class="container col-md-offset-3 col-md-6 col-sm-offset-2 col-md-8 col-xs-offset-2 col-xs-8" style="border: 1px solid black; height: 600px;" data-bind="pinpoint: address, coordinates: coordinates">
+		<div class="container col-md-offset-3 col-md-6 col-sm-offset-2 col-md-8 col-xs-offset-2 col-xs-8" style="border: 1px solid black; height: 600px;" data-bind="pinpoint: address, coordinates: coordinates,newAddress:newAddress">
 		</div>
 	</div>
 	<br />
 	address: {{address}}
+	<br />
+	new address: {{newAddress}}
 	<br />
 	coordinates: {{coordinates}}
 	<script type="text/javascript">
@@ -39,7 +41,8 @@
 		function Model() {
 			return {
 				address: ko.observable("935 Gravier Street, New Orleans, LA, 70123"),
-				coordinates: ko.observable()
+				coordinates: ko.observable(),
+				newAddress: ko.observable()
 			}
 		}
 
