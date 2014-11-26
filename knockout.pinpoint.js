@@ -10,7 +10,9 @@
 
 	ko.bindingHandlers.pinpoint = {
 		init: function (el, valueAccessor, allBindings) {
-			el.coordinates = getObservable(allBindings.get('coordinates')).extend({ throttle: 500 });
+
+			//getObservable(valueAccessor()).extend({ throttle: 500 });
+			el.address = getObservable(allBindings.get('address'));
 			el.newAddress = getObservable(allBindings.get('newAddress'));
 			el.map = getObservable(allBindings.get('map'));
 			el.marker = getObservable(allBindings.get('marker'));
@@ -18,16 +20,18 @@
 			el.markerOptions = ko.utils.unwrapObservable(allBindings.get('markerOptions'));
 			configureOptions(el);
 
-			el.coordinates.subscribe(function (newVal) {
-				render(el, newVal);
-				reverseCodeAddress(el, newVal);
-			}, this);
-
 			return { controlsDescendantBindings: true };
 		},
 		update: function (el, valueAccessor, allBindings) {
-			var address = valueAccessor();
-			codeAddress(el, address());
+			el.coordinates = valueAccessor();
+			//if coordinates are valid, use them, else use the address if it is passed in
+			if (el.coordinates() && el.coordinates().lat() && el.coordinates().lng()) {
+				render(el, el.coordinates());
+			} else {
+				codeAddress(el, el.address());
+			}
+
+			reverseCodeAddress(el, el.coordinates());
 		}
 	}
 
@@ -51,13 +55,14 @@
 		var markerOptions = $.extend({}, el.markerOptions, { map: el.map(), position: coordinates, draggable: true });
 		if (!el.marker()) {
 			el.marker(new google.maps.Marker(markerOptions));
+
+			google.maps.event.addListener(el.marker(), 'dragend', function (ev) {
+				window.setTimeout(function () {
+					el.coordinates(el.marker().getPosition())
+					el.map().panTo(el.marker().getPosition());
+				}, 500);
+			});
 		}
-		google.maps.event.addListener(el.marker(), 'dragend', function (ev) {
-			window.setTimeout(function () {
-				el.coordinates(el.marker().getPosition())
-				el.map().panTo(el.marker().getPosition());
-			}, 500);
-		});
 	}
 
 	function reverseCodeAddress(el, coordinates) {
@@ -69,12 +74,10 @@
 		geocoder.geocode({
 			'latLng': coordinates
 		}, function (results, status) {
-			if (status == google.maps.GeocoderStatus.OK) {
-				if (results[0]) {
-					el.newAddress({ formatted: results[0].formatted_address, object: addressFromComponents(results[0].address_components), components: results[0].address_components });
-				} else {
-					el.newAddress(null);
-				}
+			if (status == google.maps.GeocoderStatus.OK && results[0]) {
+				el.newAddress({ formatted: results[0].formatted_address, object: addressFromComponents(results[0].address_components), components: results[0].address_components });
+			} else {
+				el.newAddress(null);
 			}
 		});
 	}
