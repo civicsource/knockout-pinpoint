@@ -164,6 +164,7 @@
 		}
 		el.mapOptions.zoom = (el.mapOptions.zoom || 4);
 		el.mapOptions.center = (el.mapOptions.center || { lat: 39.50, lng: -98.35 });
+		el.mapOptions.disableDefaultUI = (el.mapOptions.disableDefaultUI === false ? false : true);
 		if (!el.markerOptions) {
 			el.markerOptions = {};
 		}
