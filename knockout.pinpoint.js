@@ -10,27 +10,52 @@
 
 	ko.bindingHandlers.pinpoint = {
 		init: function (el, valueAccessor, allBindings) {
-
-			//getObservable(valueAccessor()).extend({ throttle: 500 });
-			el.address = getObservable(allBindings.get('address'));
-			el.newAddress = getObservable(allBindings.get('newAddress'));
+			el.coordinates = valueAccessor();
+			//two way bindings
+			el.address = getObservable(allBindings.get('address')).extend({ rateLimit: { timeout: 1000, method: "notifyWhenChangesStop" } });
 			el.map = getObservable(allBindings.get('map'));
 			el.marker = getObservable(allBindings.get('marker'));
+			el.hasBeenDragged = getObservable(allBindings.get('hasBeenDragged'));
+			el.hasBeenDragged(false);
+			el.newAddress = getObservable(allBindings.get('newAddress'));
+
+			//one way, non observables
 			el.mapOptions = ko.utils.unwrapObservable(allBindings.get('mapOptions'));
 			el.markerOptions = ko.utils.unwrapObservable(allBindings.get('markerOptions'));
+
+
+			//internal
+			el.coordinatesAreValid = ko.computed(function () {
+				return (el.coordinates() && el.coordinates().lat() && el.coordinates().lng());
+			}, this);
+
+			//if coordinates are provided on the init
+			el.coordinatesProvided = ko.observable(el.coordinatesAreValid());
+
 			configureOptions(el);
 
-			return { controlsDescendantBindings: true };
-		},
-		update: function (el, valueAccessor, allBindings) {
-			el.coordinates = valueAccessor();
-			//if coordinates are valid, use them, else use the address if it is passed in
-			if (el.coordinates() && el.coordinates().lat() && el.coordinates().lng()) {
+			//if the marker has been dragged or the coordinates were originally provided, render based on coordinates
+			if (el.coordinatesProvided()) {
 				render(el, el.coordinates());
 			} else {
 				codeAddress(el, el.address());
 			}
 
+			el.address.subscribe(function () {
+				if (!el.hasBeenDragged()) {
+					codeAddress(el, el.address());
+				}
+			}, this);
+
+			el.map(new google.maps.Map(el, el.mapOptions));
+
+			return { controlsDescendantBindings: true };
+		},
+		update: function (el, valueAccessor, allBindings) {
+
+			if (!el.hasBeenDragged()) {
+				render(el, el.coordinates());
+			}
 			reverseCodeAddress(el, el.coordinates());
 		}
 	}
@@ -47,10 +72,12 @@
 		});
 	}
 	function render(el, coordinates) {
-		if (!coordinates) return;
-		var mapOptions = $.extend({}, el.mapOptions, { center: coordinates });
+		if ((!coordinates || !coordinates.lat() || !coordinates.lng())) return;
+		var mapOptions = $.extend({}, el.mapOptions, { center: coordinates, zoom: 18 });
 		if (!el.map()) {
 			el.map(new google.maps.Map(el, mapOptions));
+		} else {
+			el.map().setZoom(mapOptions.zoom);
 		}
 		var markerOptions = $.extend({}, el.markerOptions, { map: el.map(), position: coordinates, draggable: true });
 		if (!el.marker()) {
@@ -58,24 +85,32 @@
 
 			google.maps.event.addListener(el.marker(), 'dragend', function (ev) {
 				window.setTimeout(function () {
+					el.hasBeenDragged(true);
 					el.coordinates(el.marker().getPosition())
 					el.map().panTo(el.marker().getPosition());
 				}, 500);
 			});
+			el.marker().setPosition(coordinates);
+			el.map().panTo(coordinates);
+		} else {
+			el.marker().setPosition(coordinates);
+			el.map().panTo(coordinates);
 		}
 	}
 
 	function reverseCodeAddress(el, coordinates) {
-		if (!coordinates) {
-			el.newAddress(null);
-			return;
-		}
+		//if (!coordinates) {
+		//	el.newAddress(null);
+		//	return;
+		//}
+		console.log(coordinates);
 		geocoder = new google.maps.Geocoder();
 		geocoder.geocode({
 			'latLng': coordinates
 		}, function (results, status) {
 			if (status == google.maps.GeocoderStatus.OK && results[0]) {
 				el.newAddress({ formatted: results[0].formatted_address, object: addressFromComponents(results[0].address_components), components: results[0].address_components });
+				console.log(el.newAddress().formatted);
 			} else {
 				el.newAddress(null);
 			}
@@ -129,7 +164,8 @@
 		if (!el.mapOptions) {
 			el.mapOptions = {};
 		}
-		el.mapOptions.zoom = (el.mapOptions.zoom || 17);
+		el.mapOptions.zoom = (el.mapOptions.zoom || 4);
+		el.mapOptions.center = (el.mapOptions.center || { lat: 39.50, lng: -98.35 });
 		if (!el.markerOptions) {
 			el.markerOptions = {};
 		}
