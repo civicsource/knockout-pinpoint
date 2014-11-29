@@ -27,10 +27,11 @@
 	</style>
 
 	<div class="row">
-		<div class="container col-md-offset-3 col-md-6 col-sm-offset-2 col-md-8 col-xs-offset-2 col-xs-8" style="border: 1px solid black; height: 600px;" data-bind="pinpoint: coordinates, address: address,newAddress:newAddress,mapOptions:mapOptions">
+		<div class="container col-md-offset-3 col-md-6 col-sm-offset-2 col-md-8 col-xs-offset-2 col-xs-8" style="border: 1px solid black; height: 600px;" data-bind="pinpoint: coordinates, address: address,newAddress:newAddress">
 		</div>
 	</div>
-	<textarea cols="100" rows="3" type="text" data-bind="value: address,valueUpdate: 'afterkeydown'"></textarea>
+	<br />
+	<textarea cols="100" rows="3" type="text" data-bind="value: address,valueUpdate: 'afterkeydown'" placeholder="start typing an address"></textarea>
 	<br />
 	address: {{address}}
 	{{#if newAddress}}

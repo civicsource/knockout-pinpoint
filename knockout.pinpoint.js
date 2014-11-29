@@ -44,6 +44,9 @@
 			el.address.subscribe(function () {
 				if (!el.hasBeenDragged()) {
 					codeAddress(el, el.address());
+				} else {
+					//reset
+					el.hasBeenDragged(false);
 				}
 			}, this);
 
@@ -53,6 +56,7 @@
 		},
 		update: function (el, valueAccessor, allBindings) {
 
+			//if it has been dragged, dont move when coordinates change
 			if (!el.hasBeenDragged()) {
 				render(el, el.coordinates());
 			}
@@ -99,18 +103,12 @@
 	}
 
 	function reverseCodeAddress(el, coordinates) {
-		//if (!coordinates) {
-		//	el.newAddress(null);
-		//	return;
-		//}
-		console.log(coordinates);
 		geocoder = new google.maps.Geocoder();
 		geocoder.geocode({
 			'latLng': coordinates
 		}, function (results, status) {
 			if (status == google.maps.GeocoderStatus.OK && results[0]) {
 				el.newAddress({ formatted: results[0].formatted_address, object: addressFromComponents(results[0].address_components), components: results[0].address_components });
-				console.log(el.newAddress().formatted);
 			} else {
 				el.newAddress(null);
 			}
