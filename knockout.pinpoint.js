@@ -52,6 +52,10 @@
 
 			el.map(new google.maps.Map(el, el.mapOptions));
 
+			setTimeout(function () {
+				google.maps.event.trigger(el.map(), 'resize');
+			}, 0);
+
 			return { controlsDescendantBindings: true };
 		},
 		update: function (el, valueAccessor, allBindings) {
