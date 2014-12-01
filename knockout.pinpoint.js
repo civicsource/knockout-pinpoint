@@ -54,6 +54,7 @@
 
 			setTimeout(function () {
 				google.maps.event.trigger(el.map(), 'resize');
+				el.map().setCenter(el.mapOptions.center);
 			}, 0);
 
 			return { controlsDescendantBindings: true };
@@ -84,26 +85,29 @@
 		var mapOptions = $.extend({}, el.mapOptions, { center: coordinates, zoom: 18 });
 		if (!el.map()) {
 			el.map(new google.maps.Map(el, mapOptions));
-		} else {
-			el.map().setZoom(mapOptions.zoom);
 		}
+		setTimeout(function () {
+			google.maps.event.trigger(el.map(), 'resize');
+			el.map().setCenter(el.marker().getPosition());
+			el.map().panTo(mapOptions.center);
+			el.map().setZoom(mapOptions.zoom);
+		}, 0);
 		var markerOptions = $.extend({}, el.markerOptions, { map: el.map(), position: coordinates, draggable: true });
-		if (!el.marker()) {
+		if (!el.marker() || !el.marker().map) {
 			el.marker(new google.maps.Marker(markerOptions));
 
 			google.maps.event.addListener(el.marker(), 'dragend', function (ev) {
 				window.setTimeout(function () {
 					el.hasBeenDragged(true);
-					el.coordinates(el.marker().getPosition())
+					el.coordinates(el.marker().getPosition());
 					el.map().panTo(el.marker().getPosition());
 				}, 500);
 			});
-			el.marker().setPosition(coordinates);
-			el.map().panTo(coordinates);
-		} else {
-			el.marker().setPosition(coordinates);
-			el.map().panTo(coordinates);
 		}
+		el.marker().setMap(el.map());
+		el.marker().setPosition(coordinates);
+		el.map().panTo(coordinates);
+		
 	}
 
 	function reverseCodeAddress(el, coordinates) {
