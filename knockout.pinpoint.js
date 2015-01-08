@@ -41,7 +41,7 @@
 				codeAddress(el, el.address());
 			}
 
-			el.address.subscribe(function () {
+			var addrSub = el.address.subscribe(function () {
 				if (!el.hasBeenDragged()) {
 					codeAddress(el, el.address());
 				} else {
@@ -56,6 +56,10 @@
 				google.maps.event.trigger(el.map(), 'resize');
 				el.map().setCenter(el.mapOptions.center);
 			}, 0);
+
+			ko.utils.domNodeDisposal.addDisposeCallback(el, function () {
+				addrSub.dispose();
+			});
 
 			return { controlsDescendantBindings: true };
 		},
