@@ -1,7 +1,7 @@
 {
   "name": "knockout-pinpoint",
-  "version": "1.0.1",
-  "main": "knockout-pinpoint.js",
+  "version": "1.0.2",
+  "main": "knockout.pinpoint.js",
   "description": " Knockout component to get coordinates/address based on map location.",
   "keywords": [
     "knockout",
