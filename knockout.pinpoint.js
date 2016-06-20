@@ -1,12 +1,12 @@
 ﻿(function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		// AMD. Register as an anonymous module.
-		define(["jquery", "knockout"], factory);
+		define(["jquery-extend", "knockout"], factory);
 	} else {
 		// Browser globals
 		factory(jQuery, ko);
 	}
-}(this, function ($, ko) {
+}(this, function ($extend, ko) {
 
 	ko.bindingHandlers.pinpoint = {
 		init: function (el, valueAccessor, allBindings) {
@@ -86,7 +86,7 @@
 	}
 	function render(el, coordinates) {
 		if ((!coordinates || !coordinates.lat() || !coordinates.lng())) return;
-		var mapOptions = $.extend({}, el.mapOptions, { center: coordinates, zoom: 18 });
+		var mapOptions = $extend({}, el.mapOptions, { center: coordinates, zoom: 18 });
 		if (!el.map()) {
 			el.map(new google.maps.Map(el, mapOptions));
 		}
@@ -96,7 +96,7 @@
 			el.map().panTo(mapOptions.center);
 			el.map().setZoom(mapOptions.zoom);
 		}, 0);
-		var markerOptions = $.extend({}, el.markerOptions, { map: el.map(), position: coordinates, draggable: true });
+		var markerOptions = $extend({}, el.markerOptions, { map: el.map(), position: coordinates, draggable: true });
 		if (!el.marker() || !el.marker().map) {
 			el.marker(new google.maps.Marker(markerOptions));
 
@@ -140,26 +140,26 @@
 		components.forEach(function (component) {
 			var val = getComponentValue(component);
 
-			if (~$.inArray("street_number", component.types)) {
+			if (~component.types.indexOf("street_number")) {
 				address.address1 = val;
 			}
-			if (~$.inArray("route", component.types)) {
+			if (~component.types.indexOf("route")) {
 				if (address.address1) address.address1 += " ";
 				address.address1 += val;
 			}
-			if (~$.inArray("locality", component.types)) {
+			if (~component.types.indexOf("locality")) {
 				address.city = val;
 			}
-			if (~$.inArray("administrative_area_level_1", component.types)) {
+			if (~component.types.indexOf("administrative_area_level_1")) {
 				address.state = component.short_name;
 			}
-			if (~$.inArray("country", component.types)) {
+			if (~component.types.indexOf("country")) {
 				address.country = component.short_name;
 			}
-			if (~$.inArray("postal_code", component.types)) {
+			if (~component.types.indexOf("postal_code")) {
 				address.postalCode = val;
 			}
-			if (~$.inArray("administrative_area_level_2", component.types)) {
+			if (~component.types.indexOf("administrative_area_level_2")) {
 				address.county = val;
 			}
 		});

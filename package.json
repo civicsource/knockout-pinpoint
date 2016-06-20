@@ -1,0 +1,25 @@
+{
+  "name": "knockout-pinpoint",
+  "version": "3.0.0",
+  "description": "Knockout component to get coordinates/address based on map location.",
+  "main": "knockout.pinpoint.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/civicsource/knockout-pinpoint.git"
+  },
+  "keywords": [
+    "knockout",
+    "Google Maps",
+    "map"
+  ],
+  "author": "CivicSource",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/civicsource/knockout-pinpoint/issues"
+  },
+  "homepage": "https://github.com/civicsource/knockout-pinpoint#readme",
+  "dependencies": {
+    "jquery-extend": "2.x",
+    "knockout": "3.x"
+  }
+}
