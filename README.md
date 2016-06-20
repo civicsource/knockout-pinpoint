@@ -2,15 +2,13 @@
 
 > Knockout component to get coordinates/address based on map location
 
-View the [demo](http://civicsource.github.io/knockout-pinpoint/)
-
-##Install with [Bower](http://bower.io/)
+##Installation
 
 ```
-bower install knockout-pinpoint --save
+npm install knockout.pinpoint --save
 ```
 
-##How to Use
+##Usage
 
 `require` the script and use it as a binding handler:
 
