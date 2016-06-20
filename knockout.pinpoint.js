@@ -5,16 +5,16 @@ ko.bindingHandlers.pinpoint = {
 	init: function (el, valueAccessor, allBindings) {
 		el.coordinates = valueAccessor();
 		//two way bindings
-		el.address = getObservable(allBindings.get('address')).extend({ rateLimit: { timeout: 1000, method: "notifyWhenChangesStop" } });
-		el.map = getObservable(allBindings.get('map'));
-		el.marker = getObservable(allBindings.get('marker'));
-		el.hasBeenDragged = getObservable(allBindings.get('hasBeenDragged'));
+		el.address = getObservable(allBindings.get("address")).extend({ rateLimit: { timeout: 1000, method: "notifyWhenChangesStop" } });
+		el.map = getObservable(allBindings.get("map"));
+		el.marker = getObservable(allBindings.get("marker"));
+		el.hasBeenDragged = getObservable(allBindings.get("hasBeenDragged"));
 		el.hasBeenDragged(false);
-		el.newAddress = getObservable(allBindings.get('newAddress'));
+		el.newAddress = getObservable(allBindings.get("newAddress"));
 
 		//one way, non observables
-		el.mapOptions = ko.utils.unwrapObservable(allBindings.get('mapOptions'));
-		el.markerOptions = ko.utils.unwrapObservable(allBindings.get('markerOptions'));
+		el.mapOptions = ko.utils.unwrapObservable(allBindings.get("mapOptions"));
+		el.markerOptions = ko.utils.unwrapObservable(allBindings.get("markerOptions"));
 
 
 		//internal
@@ -46,7 +46,7 @@ ko.bindingHandlers.pinpoint = {
 		el.map(new google.maps.Map(el, el.mapOptions));
 
 		setTimeout(function () {
-			google.maps.event.trigger(el.map(), 'resize');
+			google.maps.event.trigger(el.map(), "resize");
 			el.map().setCenter(el.mapOptions.center);
 		}, 0);
 
@@ -56,7 +56,7 @@ ko.bindingHandlers.pinpoint = {
 
 		return { controlsDescendantBindings: true };
 	},
-	update: function (el, valueAccessor, allBindings) {
+	update: function (el) {
 
 		//if it has been dragged, dont move when coordinates change
 		if (!el.hasBeenDragged()) {
@@ -64,13 +64,13 @@ ko.bindingHandlers.pinpoint = {
 		}
 		reverseCodeAddress(el, el.coordinates());
 	}
-}
+};
 
 function codeAddress(el, address) {
 	if (!address) return;
-	geocoder = new google.maps.Geocoder();
+	var geocoder = new google.maps.Geocoder();
 	geocoder.geocode({
-		'address': address
+		"address": address
 	}, function (results, status) {
 		if (status == google.maps.GeocoderStatus.OK) {
 			el.coordinates(results[0].geometry.location);
@@ -85,7 +85,7 @@ function render(el, coordinates) {
 		el.map(new google.maps.Map(el, mapOptions));
 	}
 	setTimeout(function () {
-		google.maps.event.trigger(el.map(), 'resize');
+		google.maps.event.trigger(el.map(), "resize");
 		el.map().setCenter(el.marker().getPosition());
 		el.map().panTo(mapOptions.center);
 		el.map().setZoom(mapOptions.zoom);
@@ -94,7 +94,7 @@ function render(el, coordinates) {
 	if (!el.marker() || !el.marker().map) {
 		el.marker(new google.maps.Marker(markerOptions));
 
-		google.maps.event.addListener(el.marker(), 'dragend', function (ev) {
+		google.maps.event.addListener(el.marker(), "dragend", function () {
 			window.setTimeout(function () {
 				el.hasBeenDragged(true);
 				el.coordinates(el.marker().getPosition());
@@ -109,9 +109,9 @@ function render(el, coordinates) {
 }
 
 function reverseCodeAddress(el, coordinates) {
-	geocoder = new google.maps.Geocoder();
+	var geocoder = new google.maps.Geocoder();
 	geocoder.geocode({
-		'latLng': coordinates
+		"latLng": coordinates
 	}, function (results, status) {
 		if (status == google.maps.GeocoderStatus.OK && results[0]) {
 			el.newAddress({ formatted: results[0].formatted_address, object: addressFromComponents(results[0].address_components), components: results[0].address_components });
@@ -129,8 +129,8 @@ function addressFromComponents(components) {
 		state: "",
 		postalCode: "",
 		county: "",
-		country: "",
-	}
+		country: ""
+	};
 	components.forEach(function (component) {
 		var val = getComponentValue(component);
 

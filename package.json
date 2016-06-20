@@ -13,7 +13,7 @@
     "map"
   ],
   "scripts": {
-    "lint": "eslint src --ext=js --format=unix",
+    "lint": "eslint . --format=unix",
     "prepublish": "npm run lint"
   },
   "author": "CivicSource",
@@ -27,6 +27,7 @@
     "knockout": "3.x"
   },
   "devDependencies": {
+    "babel-eslint": "^6.0.4",
     "eslint": "^2.13.1",
     "eslint-plugin-filenames": "^1.0.0"
   }
