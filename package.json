@@ -2,7 +2,7 @@
   "name": "knockout-pinpoint",
   "version": "3.0.0",
   "description": "Knockout component to get coordinates/address based on map location.",
-  "main": "knockout.pinpoint.js",
+  "main": "knockout-pinpoint.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/civicsource/knockout-pinpoint.git"
